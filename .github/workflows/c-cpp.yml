@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Getting Build-Essential
+      run: sudo apt update && sudo apt install build-essentials
     - name: make
       run: make
