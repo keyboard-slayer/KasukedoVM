@@ -20,7 +20,7 @@ CFLAGS :=      \
 	-Wall      \
 	-Wextra    \
 	-I.		   \
-	-std=c++20
+	-std=c++11
 
 src := $(wildcard *.cpp)
 
