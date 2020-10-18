@@ -23,7 +23,7 @@
 #include "parser.hpp"
 
 bool 
-load_source(char *filename, std::vector<std::string> *code)
+load_source(const char *filename, std::vector<std::string> *code)
 {
     std::ifstream source_file(filename);
     std::string line;
@@ -37,7 +37,7 @@ load_source(char *filename, std::vector<std::string> *code)
     {
         code->push_back(line);
     }
-
+    source_file.close();
     return true;
 }
 
