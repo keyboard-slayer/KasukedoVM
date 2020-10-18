@@ -15,9 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Kasukēdo.  If not, see <http://www.gnu.org/licenses/>.
 
-load r0, 21
-load r1, 2 
+label:
+    add r0, 10
 
-mul r0, r1 
-mul r1, 21
-OUT
+willnotjmp:
+    sub r0, 10
+    
+load r0, 10
+jmp label
+out

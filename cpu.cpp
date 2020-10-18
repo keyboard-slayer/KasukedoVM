@@ -29,6 +29,31 @@ int64_t CPU::get_value(size_t regid)
     return this->_registers[regid];
 }
 
+void CPU::add_code_label(std::string label, std::string code)
+{
+    _labelcode[label].push_back(code);
+}
+
+void CPU::declare_label(std::string label)
+{
+    _label_position[label] = this->ip;
+}
+
+bool CPU::label_declared(std::string label)
+{
+    return this->_labelcode.find(label)  != this->_labelcode.end();
+}
+
+int64_t CPU::get_label_ip(std::string label)
+{
+    return this->_label_position[label];
+}
+
+std::vector<std::string> CPU::get_label_code(std::string label)
+{
+    return this->_labelcode[label];
+}
+
 void CPU::debug(void)
 {
     for(size_t i = 0; i < 8; i++)

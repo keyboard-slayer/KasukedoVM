@@ -23,3 +23,4 @@ sub r1, r0
 
 sub r0, 2 
 add r1, 44
+out

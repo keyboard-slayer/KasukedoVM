@@ -17,13 +17,14 @@
 
 CC := g++
 CFLAGS :=      \
+	-O2		   \
 	-Wall      \
 	-Wextra    \
 	-I.		   \
-	-std=c++11
+	-std=c++11 \
 
 src := $(wildcard *.cpp)
 
 all:
-	$(CC) $(CFLAGS) $(src) -o Kasukedo 
+	$(CC) $(CFLAGS) $(src) -o kasukedo 
 	

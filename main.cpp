@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "parser.hpp"
+#include "cpu.hpp"
 
 bool 
 load_source(char *filename, std::vector<std::string> *code)
@@ -45,6 +46,7 @@ int
 main(int argc, char *argv[])
 {
     std::vector<std::string> asm_code;
+    CPU cpu;
 
     if (argc == 1)
     {
@@ -58,5 +60,5 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    return parse(asm_code);
+    return parse(asm_code, &cpu);
 }

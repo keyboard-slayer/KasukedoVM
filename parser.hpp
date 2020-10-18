@@ -22,7 +22,23 @@
 
 typedef int (*pfunc)(std::vector<std::string>, CPU *);
 
-int parse(std::vector<std::string>);
+int parse(std::vector<std::string>, CPU *);
 int math(std::vector<std::string>, CPU *);
+
+bool valid_register(std::string);
+bool isnumber(std::string);
+
+int jeq(std::vector<std::string>, CPU *);
+int jneq(std::vector<std::string>, CPU *);
+int jlt(std::vector<std::string>, CPU *);
+int jgt(std::vector<std::string>, CPU *);
+int jmp(std::vector<std::string>, CPU *);
+int load(std::vector<std::string>, CPU *);
+int out(std::vector<std::string>, CPU *);
+int cmp(std::vector<std::string>, CPU *);
+
+std::vector<std::string> parse_args(std::string);
+
+std::string remove_align(std::string);
 
 #endif

@@ -18,22 +18,39 @@
 #ifndef _KASUKEDO_CPU_HPP_
 #define _KASUKEDO_CPU_HPP_
 
-#include <cstdint>
 #include <array>
+#include <vector>
+#include <string>
+#include <map>
+
+#include <cstdint>
 #include <cstddef>
 
 class CPU
 {
     private:
         std::array<int64_t, 8> _registers = {0};
-        bool branch = 0;
+        std::map<std::string, std::vector<std::string>> _labelcode;
+        std::map<std::string, int64_t> _label_position;
 
     public:
         uint64_t pc = 0;
+        uint64_t ip = 0;
+        uint64_t end = 0;
+        uint8_t branch = false; /* 1 is eq, 2 is lt, 3 is gt */
 
         void load_register(size_t, int64_t);
-        int64_t get_value(size_t);
+        void add_code_label(std::string, std::string);
+        void declare_label(std::string);
         void debug(void);
+
+        int64_t get_value(size_t);
+        int64_t get_label_ip(std::string);
+
+        bool label_declared(std::string);
+
+        std::vector<std::string> get_label_code(std::string);
+
 };
 
 #endif

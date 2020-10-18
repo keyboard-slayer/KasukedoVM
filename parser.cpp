@@ -44,16 +44,80 @@ isnumber(std::string arg)
     return !arg.empty() && it == arg.end();
 }
 
+int 
+jeq(std::vector<std::string> args, CPU *cpu)
+{
+    if (cpu->branch == 1)
+    {
+        return jmp(args, cpu);
+    } 
+
+    return 0;
+}
+
+int 
+jneq(std::vector<std::string> args, CPU *cpu)
+{
+    if (cpu->branch != 1)
+    {
+        return jmp(args, cpu);
+    }
+
+    return 0;
+}
+
+int 
+jlt(std::vector<std::string> args, CPU *cpu)
+{
+    if (cpu->branch == 2)
+    {
+        return jmp(args, cpu);
+    }
+
+    return 0;
+}
+
+int 
+jgt(std::vector<std::string> args, CPU *cpu)
+{
+    if (cpu->branch == 3)
+    {
+        return jmp(args, cpu);
+    }
+
+    return 0;
+}
+
+int 
+jmp(std::vector<std::string> args, CPU *cpu)
+{
+    int return_code;
+
+    transform(args[0].begin(), args[0].end(), args[0].begin(), ::toupper);
+
+    if (!cpu->label_declared(args[0]))
+    {
+        return 1;
+    }
+
+    cpu->ip = cpu->get_label_ip(args[0]);
+
+    return_code = parse(cpu->get_label_code(args[0]), cpu);
+
+    cpu->ip = cpu->end;
+    return return_code;
+}
+
 int
 load(std::vector<std::string> args, CPU *cpu)
 {
+    int64_t to_load;
+
     if (args.size() != 2 || !valid_register(args[0]))
     {
         return 1;
     }
 
-    int64_t to_load;
-    
     if (valid_register(args[1]))
     {
         to_load = cpu->get_value(args[1][1] - '0');
@@ -74,16 +138,72 @@ load(std::vector<std::string> args, CPU *cpu)
 }
 
 int 
-math(std::vector<std::string> args, CPU *cpu, std::string operation)
+out(std::vector<std::string> args, CPU *cpu)
 {
-    if (args.size() != 2 || !valid_register(args[0]))
+    (void) args;
+    cpu->debug();
+
+    return 0;
+}
+
+int 
+cmp(std::vector<std::string> args, CPU *cpu)
+{
+    int64_t val1;
+    int64_t val2;
+
+    if (args.size() != 2)
     {
         return 1;
     }
 
-    int64_t r = cpu->get_value(args[0][1] - '0');
+    if (valid_register(args[0]))
+    {
+        val1 = cpu->get_value(args[0][1] - '0');
+    }
+    else 
+    {
+        std::istringstream iss(args[0]);
+        iss >> val1;
+    }
+
+    if (valid_register(args[1]))
+    {
+        val2 = cpu->get_value(args[1][1] - '0');
+    } 
+    else 
+    {
+        std::istringstream iss(args[1]);
+        iss >> val2;
+    }
+
+    if (val1 == val2)
+    {
+        cpu->branch = 1;
+    } 
+    else if(val1 < val2)
+    {
+        cpu->branch = 2;
+    }
+    else if(val1 > val2)
+    {
+        cpu->branch = 3;
+    }
+
+    return 0;
+}
+
+int 
+math(std::vector<std::string> args, CPU *cpu, std::string operation)
+{
     int64_t to_do;
     int64_t result;
+    int64_t r = cpu->get_value(args[0][1] - '0');
+
+    if (args.size() != 2 || !valid_register(args[0]))
+    {
+        return 1;
+    }
 
     if (valid_register(args[1]))
     {
@@ -103,20 +223,33 @@ math(std::vector<std::string> args, CPU *cpu, std::string operation)
     {
         result = r + to_do;
     }
-
-    if(operation == "SUB")
+    else if (operation == "SUB")
     {
         result = r - to_do;
     }
-
-    if(operation == "MUL")
+    else if (operation == "MUL")
     {
         result = r * to_do;
     }
-
-    if(operation == "DIV")
+    else if (operation == "DIV")
     {
         result = r / to_do;
+    }
+    else if (operation == "OR")
+    {
+        result = r | to_do;
+    }
+    else if (operation == "AND")
+    {
+        result = r & to_do;
+    }
+    else if (operation == "XOR")
+    {
+        result = r ^ to_do;
+    }
+    else 
+    {
+        return 1;
     }
 
     cpu->load_register(args[0][1] - '0', result);
@@ -130,8 +263,9 @@ parse_args(std::string args)
 
     std::string tmp;
     std::vector<std::string> return_value;
+    size_t i;
 
-    for (size_t i = 0; i < args.size(); i++)
+    for (i = 0; i < args.size(); i++)
     {
         if (args[i] == ',')
         {
@@ -149,62 +283,115 @@ parse_args(std::string args)
     return return_value;
 }
 
-int 
-parse(std::vector<std::string> code)
+std::string  
+remove_align(std::string code)
 {
-    int return_value = 1;
+    std::string result;
+    size_t i;
+    bool found_code = false;
+
+    for(i = 0; i < code.length(); i++)
+    {
+        if (code[i] == ' ' && !found_code)
+        {
+            continue;
+        }
+
+        else 
+        {
+            found_code = true;
+            result += code[i];
+        }
+    }
+
+    return result;
+}
+
+int 
+parse(std::vector<std::string> code, CPU *cpu)
+{
     std::vector<std::string> args;
+    std::string label_name;
     std::string mnemonic;
     pfunc func;
-    CPU cpu;
+
+    int return_value = 1;
+    std::vector<std::string> orginal_code = code;
 
     std::vector<std::string> mathfunc = {
         "ADD",
         "DIV",
         "MUL",
-        "SUB"
+        "SUB",
+        "AND",
+        "OR",
+        "XOR"
     };
 
     std::map<std::string, pfunc> otherfunc
     {
-        {"LOAD", load}
+        {"LOAD", load},
+        {"JMP", jmp},
+        {"OUT", out},
+        {"CMP", cmp}, 
+        {"JEQ", jeq}
     };
 
-    for (size_t i = 0; i < code.size(); i++)
+    if (cpu->end == 0)
     {
-        if (code[i].rfind("//", 0) == 0 || code[i].length() == 0)
+        cpu->end = code.size();
+    }
+    
+    for (cpu->ip = 0; cpu->ip < code.size(); cpu->ip++)
+    {
+        if (code[cpu->ip].rfind("//", 0) == 0 || code[cpu->ip].length() == 0)
         {
             continue;  
         }
 
-        mnemonic = code[i].substr(0, code[i].find(' '));
-        transform(mnemonic.begin(), mnemonic.end(), mnemonic.begin(), ::toupper);
-
-        code[i].erase(0, mnemonic.size()+1);
-        code[i].erase(remove_if(code[i].begin(), code[i].end(), ::isspace), code[i].end());
-        args = parse_args(code[i]);
-
-        if (std::find(mathfunc.begin(), mathfunc.end(), mnemonic) != mathfunc.end())
+        if (label_name.size() && code[cpu->ip][0] == ' ')
         {
-            return_value = math(args, &cpu, mnemonic);
-        } 
+            cpu->add_code_label(label_name, remove_align(code[cpu->ip]));
+        }
 
         else 
         {
-            func = otherfunc[mnemonic];
-            return_value = (*func)(args, &cpu);
+            label_name.clear();
+            mnemonic = code[cpu->ip].substr(0, code[cpu->ip].find(' '));
+
+            transform(mnemonic.begin(), mnemonic.end(), mnemonic.begin(), ::toupper);
+
+            code[cpu->ip].erase(0, mnemonic.size()+1);
+            code[cpu->ip].erase(remove_if(code[cpu->ip].begin(), code[cpu->ip].end(), ::isspace), code[cpu->ip].end());
+            args = parse_args(code[cpu->ip]);
+
+            if (std::find(mathfunc.begin(), mathfunc.end(), mnemonic) != mathfunc.end())
+            {
+                return_value = math(args, cpu, mnemonic);
+            } 
+            else if(mnemonic[mnemonic.length() -1] == ':')
+            {
+                label_name = mnemonic;
+                label_name.pop_back();
+
+                cpu->declare_label(label_name);
+                return_value = 0;
+            }
+            else 
+            {
+                func = otherfunc[mnemonic];
+                return_value = (*func)(args, cpu);
+            }
+
+            if (return_value == 1)
+            {
+                fprintf(stderr, "\033[31mError\033[0m on line %ld\n", cpu->ip+1);
+                return 1;
+            }
         }
 
-        if (return_value == 1)
-        {
-            fprintf(stderr, "\033[31mError\033[0m on line %ld\n", i+1);
-            return 1;
-        }
-
-        cpu.pc += 1;
+        cpu->pc++;
     }
-
-    cpu.debug();
 
     return 0;
 }
