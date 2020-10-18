@@ -33,15 +33,9 @@ valid_register(std::string reg)
 }
 
 bool 
-isnumber(std::string arg)
+isnumber(const std::string& arg)
 {
-    std::string::const_iterator it = arg.begin();
-    while (it != arg.end() && std::isdigit(*it))
-    {
-        ++it;
-    }
-
-    return !arg.empty() && it == arg.end();
+    return !arg.empty() && std::all_of(arg.begin(), arg.end(), ::isdigit);
 }
 
 int
