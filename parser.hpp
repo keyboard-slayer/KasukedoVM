@@ -19,8 +19,8 @@
 #define _KASUKEDO_PARSER_HPP_
 
 #include "cpu.hpp"
-
-typedef int (*pfunc)(std::vector<std::string>, CPU *);
+#include <functional>
+typedef std::function<int(std::vector<std::string>, CPU *)> pfunc;
 
 int parse(std::vector<std::string>);
 int math(std::vector<std::string>, CPU *);

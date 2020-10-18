@@ -186,7 +186,7 @@ parse(std::vector<std::string> code)
         else 
         {
             func = otherfunc[mnemonic];
-            return_value = (*func)(args, &cpu);
+            return_value = func(args, &cpu);
         }
 
         if (return_value == 1)
