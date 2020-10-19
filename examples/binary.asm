@@ -16,32 +16,30 @@
 // along with Kasukēdo.  If not, see <http://www.gnu.org/licenses/>.
 
 
-load r0, 1
-load r1, 1 
-
-// I want the 13th number of the fibonacci suite
-load r2, 11
-
-// The counter 
-load r3, 0
-
 main:
-    cmp r3, r2 
-    jeq end
+    cmp r0, 0
+    jeq end 
 
-    push r1
-    add r1, r0 
+    push r0
+
+    mod r0, 2 
+    mul r0, r1 
+    mul r1, 10
+
+    add r3, r0
     pop r0
-
-    add r3, 1
+    div r0, 2
     jmp main
 
 end:
-    load r1, r0 
-    xor r1, r1
-    xor r2, r2 
-    xor r3, r3 
-    xor r4, r4
+    pop r0
+    load r1, r3
+    
+    xor r2, r2
+    xor r3, r3
     out
-
+    
+load r0, 69
+push r0
+load r1, 1
 jmp main

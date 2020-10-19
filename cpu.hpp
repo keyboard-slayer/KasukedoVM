@@ -32,9 +32,10 @@ class CPU
         std::array<int64_t, 8> _registers = {0};
         std::map<std::string, std::vector<std::string>> _labelcode;
         std::map<std::string, int64_t> _label_position;
+        std::vector<int64_t> _stack;
 
     public:
-        uint64_t pc = 0;
+        int64_t pc = 0;
         uint64_t ip = 0;
         uint64_t end = 0;
         uint8_t branch = false; /* 1 is eq, 2 is lt, 3 is gt */
@@ -43,9 +44,11 @@ class CPU
         void add_code_label(std::string, std::string);
         void declare_label(std::string);
         void debug(void);
+        void stack_push(int64_t);
 
         int64_t get_value(size_t);
         int64_t get_label_ip(std::string);
+        int64_t stack_pop(void);
 
         bool label_declared(std::string);
 

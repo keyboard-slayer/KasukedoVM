@@ -188,6 +188,46 @@ cmp(std::vector<std::string> args, CPU *cpu)
 }
 
 int 
+push(std::vector<std::string> args, CPU *cpu)
+{
+    if (valid_register(args[0]))
+    {
+        cpu->stack_push(cpu->get_value(args[0][1] - '0'));
+
+        return 0;
+    }
+    else if(isnumber(args[0]))
+    {
+        int64_t nbr;
+        std::istringstream iss(args[0]);
+        iss >> nbr;
+
+        cpu->stack_push(nbr);
+        return 0;
+    }
+    else 
+    {
+        return 1;
+    }
+}
+
+int 
+pop(std::vector<std::string> args, CPU *cpu)
+{
+    if (!valid_register(args[0]))
+    {
+        return 1;
+    }
+    else 
+    {
+        cpu->load_register(args[0][1] - '0', cpu->stack_pop());
+        return 0;
+    }
+
+    return 1;
+}
+
+int 
 math(std::vector<std::string> args, CPU *cpu, std::string operation)
 {
     int64_t to_do;
@@ -240,6 +280,10 @@ math(std::vector<std::string> args, CPU *cpu, std::string operation)
     else if (operation == "XOR")
     {
         result = r ^ to_do;
+    }
+    else if (operation == "MOD")
+    {
+        result = r % to_do;
     }
     else 
     {
@@ -319,7 +363,8 @@ parse(std::vector<std::string> code, CPU *cpu)
         "SUB",
         "AND",
         "OR",
-        "XOR"
+        "XOR",
+        "MOD"
     };
 
     std::map<std::string, pfunc> otherfunc
@@ -328,7 +373,9 @@ parse(std::vector<std::string> code, CPU *cpu)
         {"JMP", jmp},
         {"OUT", out},
         {"CMP", cmp}, 
-        {"JEQ", jeq}
+        {"JEQ", jeq},
+        {"PUSH", push},
+        {"POP", pop}
     };
 
     if (cpu->end == 0)
@@ -350,6 +397,7 @@ parse(std::vector<std::string> code, CPU *cpu)
 
         else 
         {
+            cpu->pc++;
             label_name.clear();
             mnemonic = code[cpu->ip].substr(0, code[cpu->ip].find(' '));
 
@@ -371,10 +419,15 @@ parse(std::vector<std::string> code, CPU *cpu)
                 cpu->declare_label(label_name);
                 return_value = 0;
             }
-            else 
+            else if(otherfunc.find(mnemonic) != otherfunc.end())
             {
                 func = otherfunc[mnemonic];
                 return_value = (*func)(args, cpu);
+            }
+            else 
+            {
+                fprintf(stderr, "\033[31mError\033[0m: Mnemonic %s is unknown !\n", mnemonic.c_str());
+                return 1;
             }
 
             if (return_value == 1)
@@ -384,7 +437,6 @@ parse(std::vector<std::string> code, CPU *cpu)
             }
         }
 
-        cpu->pc++;
     }
 
     return 0;

@@ -66,5 +66,17 @@ void CPU::debug(void)
         printf("r%ld = %4ld\t", i, this->get_value(i));
     }
 
-    printf("pc = %4ld\n", this->pc);
+    printf("pc = %4ld\n\n", this->pc);
+}
+
+void CPU::stack_push(int64_t topush)
+{
+    this->_stack.push_back(topush);
+}
+
+int64_t CPU::stack_pop(void)
+{
+    int64_t last_value = this->_stack[this->_stack.size()-1];
+    this->_stack.pop_back();
+    return last_value;
 }
