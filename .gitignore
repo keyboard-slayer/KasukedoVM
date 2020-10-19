@@ -2,4 +2,5 @@
 .vscode/
 
 # output file 
+build/
 kasukedo

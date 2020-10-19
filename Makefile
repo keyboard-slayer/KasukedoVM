@@ -15,16 +15,36 @@
 # You should have received a copy of the GNU General Public License
 # along with Kasukēdo.  If not, see <http://www.gnu.org/licenses/>.
 
-CC := g++
-CFLAGS :=      \
+CXX := g++
+CXXFLAGS :=      \
 	-O2		   \
 	-Wall      \
 	-Wextra    \
 	-I.		   \
 	-std=c++11 \
 
-src := $(wildcard *.cpp)
+BUILD_DIRECTORY := build/
+DIRECTORY_GUARD=@mkdir -p $(@D)
 
-all:
-	$(CC) $(CFLAGS) $(src) -o kasukedo 
-	
+src := $(wildcard *.cpp)
+obj := $(patsubst %.cpp, $(BUILD_DIRECTORY)/%.o, $(src)) 
+bin := kasukedo
+
+OBJECTS += $(obj)
+
+$(BUILD_DIRECTORY)/%.o: %.cpp
+	$(DIRECTORY_GUARD)
+	@echo [CXX] $<
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(bin): $(obj)
+	$(DIRECTORY_GUARD)
+	@echo [LD] $(bin)
+	@$(CXX) $^ -o $@ 
+
+.PHONY: all
+all: $(bin)	
+
+.PHONY: clean
+clean:
+	rm -rf kasukedo build/
