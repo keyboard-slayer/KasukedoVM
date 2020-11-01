@@ -20,22 +20,3 @@
 <h1 align="center">カスケード</h1>
 <p align="center">Kasukēdo</p>
 
-<p align="center">
-  <a href="https://github.com/Keyboard-Slayer/Kasukedo/blob/master/LICENSE" target="_blank">
-    <img alt="License: GPL--3" src="https://img.shields.io/badge/License-GPL--3-yellow.svg" />
-  </a>
-  
-  <a href="https://github.com/Keyboard-Slayer/Kasukedo/" target="_blank">
-    <img alt="Commits: Kasukedo" src="https://img.shields.io/github/last-commit/Keyboard-Slayer/Kasukedo" />
-  </a>
-  
-  <a href="https://github.com/Keyboard-Slayer/Kasukedo/issues" target="_blank">
-    <img alt="Issues: Kasukedo" src="https://img.shields.io/github/issues-raw/Keyboard-Slayer/Kasukedo" />
-  </a>
-  
-  <a href="https://github.com/Keyboard-Slayer/Kasukedo/pulls" target="_blank">
-    <img alt="Pulls: Kasukedo" src="https://img.shields.io/github/issues-pr/Keyboard-Slayer/Kasukedo" />
-  </a>
-</p>
-
-More details soon ...
